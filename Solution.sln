@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicX", "BasicX\BasicX.vcxproj", "{E745E25C-0143-42AC-A486-1395A4C972AE}"
 EndProject
@@ -121,6 +121,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "24_Physics", "24_Physics\24_Physics.vcxproj", "{58CB6636-1057-466F-AB91-BADB3395421A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E03_Repository", "E03_Repository\E03_Repository.vcxproj", "{0F4FC36F-8E8A-4171-96EE-54E182AFD76B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "12_MeshClass_Del", "12_MeshClass_Del\12_MeshClass_Del.vcxproj", "{41A41BC9-3996-41E4-A760-23D480223BA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -278,6 +280,10 @@ Global
 		{0F4FC36F-8E8A-4171-96EE-54E182AFD76B}.Debug|x86.Build.0 = Debug|Win32
 		{0F4FC36F-8E8A-4171-96EE-54E182AFD76B}.Release|x86.ActiveCfg = Release|Win32
 		{0F4FC36F-8E8A-4171-96EE-54E182AFD76B}.Release|x86.Build.0 = Release|Win32
+		{41A41BC9-3996-41E4-A760-23D480223BA1}.Debug|x86.ActiveCfg = Debug|Win32
+		{41A41BC9-3996-41E4-A760-23D480223BA1}.Debug|x86.Build.0 = Debug|Win32
+		{41A41BC9-3996-41E4-A760-23D480223BA1}.Release|x86.ActiveCfg = Release|Win32
+		{41A41BC9-3996-41E4-A760-23D480223BA1}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -324,6 +330,7 @@ Global
 		{44D2C07B-798D-461B-9019-DFB240593888} = {5D1FB011-A2D8-4107-890B-BF1ACD0C0994}
 		{58CB6636-1057-466F-AB91-BADB3395421A} = {E0A09DA7-AF20-49C2-84DC-481ADDD01DCA}
 		{0F4FC36F-8E8A-4171-96EE-54E182AFD76B} = {13CD5CAF-2378-4851-9BEB-DF01D5A85C42}
+		{41A41BC9-3996-41E4-A760-23D480223BA1} = {E0A09DA7-AF20-49C2-84DC-481ADDD01DCA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BD7A3582-15D1-447F-AC07-3EB84CD71623}
