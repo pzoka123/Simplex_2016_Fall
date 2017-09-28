@@ -9,7 +9,7 @@ void Application::InitVariables(void)
 
 	//Make MyMesh object
 	m_pMesh = new MyMesh();
-	m_pMesh->GenerateCube(2.0f, C_RED);
+	m_pMesh->GenerateCube(1.0f, C_RED);
 
 	//Make MyMesh object
 	m_pMesh1 = new MyMesh();
@@ -35,11 +35,15 @@ void Application::Display(void)
 	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
 	static float fValue = 0.0f;
 
-	m_m4Object1 = glm::translate(vector3(1.0f, 1.0f, 0.0f)) * glm::rotate(IDENTITY_M4, fValue, AXIS_Z) * glm::translate(vector3(-1.0f, -1.0f, 0.0f));
-	fValue += 1.0f;
+	//m_m4Object1 = glm::translate(vector3(1.0f, 1.0f, 0.0f)) * glm::rotate(IDENTITY_M4, fValue, AXIS_Z) * glm::translate(vector3(-1.0f, -1.0f, 0.0f));
+	//fValue += 1.0f;
 
 	//m_pMesh->Render(m4Projection, m4View, glm::translate(vector3(2.5f, 0.0f, 0.0f)));
-	m_pMesh->Render(m4Projection, m4View, m_m4Object1);
+	//m_pMesh->Render(m4Projection, m4View, m_m4Object1);
+	for (float i = -3.0f; i < 3.0f; i++)
+	{
+		m_pMesh->Render(m4Projection, m4View, glm::translate(vector3(i, 0.0f, 0.0f)));
+	}
 
 	//m_pMesh1->Render(m4Projection, m4View, glm::translate(vector3( 3.0f, 0.0f, 0.0f)));
 		
