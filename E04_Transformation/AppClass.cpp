@@ -3,9 +3,13 @@ void Application::InitVariables(void)
 {
 	////Change this to your name and email
 	//m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Tung Nguyen - thn4185@rit.edu";
 
 	////Alberto needed this at this position for software recording.
 	//m_pWindow->setPosition(sf::Vector2i(710, 0));
+
+	//Make MyMesh object
+	m_pMesh = new MyMesh();
 }
 void Application::Update(void)
 {
@@ -40,6 +44,11 @@ void Application::Display(void)
 }
 void Application::Release(void)
 {
+	if (m_pMesh != nullptr)
+	{
+		delete m_pMesh;
+		m_pMesh = nullptr;
+	}
 	//release GUI
 	ShutdownGUI();
 }
