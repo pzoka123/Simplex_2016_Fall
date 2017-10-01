@@ -16,6 +16,8 @@ class Application
 {
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
 	MyMesh* m_pMesh = nullptr;
+	MyMesh* myList[46];
+	matrix4 translateList[46];
 private:
 	static ImGuiObject gui; //GUI object
 

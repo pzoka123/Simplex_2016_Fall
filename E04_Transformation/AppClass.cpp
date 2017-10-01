@@ -8,8 +8,13 @@ void Application::InitVariables(void)
 	////Alberto needed this at this position for software recording.
 	//m_pWindow->setPosition(sf::Vector2i(710, 0));
 
-	//Make MyMesh object
-	m_pMesh = new MyMesh();
+	//init the mesh
+	for (uint i = 0; i < 46; i++)
+	{
+		m_pMesh = new MyMesh();
+		m_pMesh->GenerateCube(1.0f, C_PURPLE);
+		myList[i] = m_pMesh;
+	}
 }
 void Application::Update(void)
 {
@@ -26,6 +31,30 @@ void Application::Display(void)
 {
 	// Clear the screen
 	ClearScreen();
+
+	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
+	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
+	
+	matrix4 m4Scale = glm::scale(IDENTITY_M4, vector3(1.0f, 1.0f, 1.0f));
+	//static float value = 0.0f;
+
+	//matrix4 m4Translate = glm::translate(IDENTITY_M4, vector3(value, 0.0f, 0.0f));
+	for (uint i = 0; i < 46; i++)
+	{
+		translateList[i] = glm::translate(IDENTITY_M4, vector3(i, 0.0f, 0.0f));
+	}
+
+	for (uint i = 0; i < 46; i++)
+	{
+		matrix4 m4Model = translateList[i];
+		myList[i]->Render(m4Projection, m4View, m4Model);
+	}
+	//value += 0.01f;
+
+	//matrix4 m4Model = m4Scale * m4Translate;
+	//matrix4 m4Model = m4Translate * m4Scale;
+
+	//m_pMesh->Render(m4Projection, m4View, m4Model);
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
@@ -44,11 +73,8 @@ void Application::Display(void)
 }
 void Application::Release(void)
 {
-	if (m_pMesh != nullptr)
-	{
-		delete m_pMesh;
-		m_pMesh = nullptr;
-	}
+	SafeDelete(m_pMesh);
+
 	//release GUI
 	ShutdownGUI();
 }

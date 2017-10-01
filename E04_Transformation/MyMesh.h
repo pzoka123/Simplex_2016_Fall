@@ -71,6 +71,72 @@ public:
 	ARGUMENTS: ---
 	OUTPUT: ---
 	*/
+	void CompleteMesh(vector3 a_v3Color = vector3(1.0f, 0.0f, 0.0f));
+	/*
+	USAGE: Adds a new point to the vector of vertices
+	ARGUMENTS:
+	-	vector3 a_v3Input -> vector input
+	OUTPUT: ---
+	*/
+	void AddVertexPosition(vector3 a_v3Input);
+	/*
+	USAGE: Adds a new color to the vector of vertices
+	ARGUMENTS:
+	-	vector3 a_v3Input -> vector input
+	OUTPUT: ---
+	*/
+	void AddVertexColor(vector3 a_v3Input);
+	/*
+	USAGE: Compiles the MyMesh for OpenGL 3.X use
+	ARGUMENTS: ---
+	OUTPUT: ---
+	*/
+	void CompileOpenGL3X(void);
+	/*
+	USAGE: Renders the mesh on the specified position by the
+	provided camera view and projection
+	ARGUMENTS:
+	-	matrix4 a_mProjection -> Projection matrix
+	-	matrix4 a_mView -> View matrix
+	-	matrix4 a_mModel -> matrix of the model in the world
+	OUTPUT: ---
+	*/
+	void Render(matrix4 a_mProjection, matrix4 a_mView, matrix4 a_mModel);
+	/*
+	USAGE: Adds a tri to the list points in the buffer to be compiled
+	//C
+	//| \
+	//A--B
+	//This will make the triangle A->B->C
+	ARGUMENTS:
+	-	vector3 a_vBottomLeft (A)
+	-	vector3 a_vBottomRight (B)
+	-	vector3 a_vTopLeft (C)
+	OUTPUT: ---
+	*/
+	void AddTri(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTopLeft);
+	/*
+	USAGE: Adds a quad to the list points in the buffer to be compiled
+	//C--D
+	//|  |
+	//A--B
+	//Will make the triangle A->B->C and then the triangle C->B->D
+	ARGUMENTS:
+	-	vector3 a_vBottomLeft (A)
+	-	vector3 a_vBottomRight (B)
+	-	vector3 a_vTopLeft (C)
+	-	vector3 a_vTopRight (D)
+	OUTPUT: ---
+	*/
+	void AddQuad(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTopLeft, vector3 a_vTopRight);
+	/*
+	USAGE: Generates a cube
+	ARGUMENTS:
+	-	float a_fSize -> Size of each side
+	-	vector3 a_v3Color -> Color of the mesh
+	OUTPUT: ---
+	*/
+	void GenerateCube(float a_fSize, vector3 a_v3Color = C_WHITE);
 };
 
 #endif //__MYMESH_H_
