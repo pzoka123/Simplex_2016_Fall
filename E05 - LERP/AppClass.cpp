@@ -56,20 +56,30 @@ void Application::Display(void)
 
 	//calculate the current position
 	vector3 v3CurrentPos;
-	
+	float fMax = 2.0f;
+	static uint currStop = 0;
+	float fPercent = MapValue(fTimer, 0.0f, fMax, 0.0f, 1.0f);
 
+
+	v3CurrentPos = glm::lerp(m_stopsList[0], m_stopsList[1], fPercent);
 
 
 
 	//your code goes here
-	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
+	//v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
 	//-------------------
+
 	
 
 
 	
 	matrix4 m4Model = glm::translate(v3CurrentPos);
 	m_pModel->SetModelMatrix(m4Model);
+
+	if (fTimer > fMax)
+	{
+		currStop++;
+	}
 
 	m_pMeshMngr->Print("\nTimer: ");//Add a line on top
 	m_pMeshMngr->PrintLine(std::to_string(fTimer), C_YELLOW);

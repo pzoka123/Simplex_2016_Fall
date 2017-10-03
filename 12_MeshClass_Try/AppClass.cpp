@@ -46,7 +46,7 @@ void Application::Display(void)
 	}
 
 	//m_pMesh1->Render(m4Projection, m4View, glm::translate(vector3( 3.0f, 0.0f, 0.0f)));
-		
+	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
 	
