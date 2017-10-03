@@ -16,8 +16,15 @@ class Application
 {
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
 	MyMesh* m_pMesh = nullptr;
-	MyMesh* myList[46];
-	matrix4 translateList[46];
+
+	static const uint numObj = 46; //Number of objects
+	uint currObj = 0; //Current object in the array
+	static const uint numRow = 8; //Number of rows
+	static const uint numCol = 6; //Number of collumns
+	MyMesh* myList[numObj]; //Array of pointers to MyMesh
+	matrix4 translateList[numObj]; //Array of matrix4
+	float myX[numObj]; //Array of X coordinates
+	float myY[numObj]; //Array of Y coordinates
 private:
 	static ImGuiObject gui; //GUI object
 

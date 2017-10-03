@@ -9,10 +9,10 @@ void Application::InitVariables(void)
 	//m_pWindow->setPosition(sf::Vector2i(710, 0));
 
 	//init the mesh
-	for (uint i = 0; i < 46; i++)
+	for (uint i = 0; i < numObj; i++)
 	{
 		m_pMesh = new MyMesh();
-		m_pMesh->GenerateCube(1.0f, C_PURPLE);
+		m_pMesh->GenerateCube(1.0f, C_BLACK);
 		myList[i] = m_pMesh;
 	}
 }
@@ -36,25 +36,122 @@ void Application::Display(void)
 	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
 	
 	matrix4 m4Scale = glm::scale(IDENTITY_M4, vector3(1.0f, 1.0f, 1.0f));
-	//static float value = 0.0f;
 
-	//matrix4 m4Translate = glm::translate(IDENTITY_M4, vector3(value, 0.0f, 0.0f));
-	for (uint i = 0; i < 46; i++)
+	//Value to move objects horizontally
+	static float valueX = 0.0f;
+
+	//Get the coordinates for 4 cubes in the center
+	for (float i = 0.0f; i < 4.0f; i++)
 	{
-		translateList[i] = glm::translate(IDENTITY_M4, vector3(i, 0.0f, 0.0f));
+		if (currObj < numObj)
+		{
+			myX[currObj] = 0;
+			myY[currObj] = i;
+			currObj++;
+		}
 	}
 
-	for (uint i = 0; i < 46; i++)
+	//Get the coordinates for 42 other cubes
+	for (float i = -2.0f; i < numRow - 2.0f; i++)
 	{
-		matrix4 m4Model = translateList[i];
+		for (float j = 1.0f; j < numCol; j++)
+		{
+			if (currObj < numObj)
+			{
+				//Get coordinates of cubes by each row
+				if (i == -2.0f && j <= 2.0f)
+				{
+					myX[currObj] = j;
+					myY[currObj] = i;
+					currObj++;
+
+					myX[currObj] = -j;
+					myY[currObj] = i;
+					currObj++;
+				}
+				else if (i == -1.0f && j > 2.0f && j != 4.0f)
+				{
+					myX[currObj] = j;
+					myY[currObj] = i;
+					currObj++;
+
+					myX[currObj] = -j;
+					myY[currObj] = i;
+					currObj++;
+				}
+				else if (i == 0.0f && j > 0.0f && j != 4.0f)
+				{
+					myX[currObj] = j;
+					myY[currObj] = i;
+					currObj++;
+
+					myX[currObj] = -j;
+					myY[currObj] = i;
+					currObj++;
+				}
+				else if (i == 1.0f)
+				{
+					myX[currObj] = j;
+					myY[currObj] = i;
+					currObj++;
+
+					myX[currObj] = -j;
+					myY[currObj] = i;
+					currObj++;
+				}
+				else if (i == 2.0f && j <= 4.0f && j != 2.0f)
+				{
+					myX[currObj] = j;
+					myY[currObj] = i;
+					currObj++;
+
+					myX[currObj] = -j;
+					myY[currObj] = i;
+					currObj++;
+				}
+				else if (i == 3.0f && j <= 3.0f)
+				{
+					myX[currObj] = j;
+					myY[currObj] = i;
+					currObj++;
+
+					myX[currObj] = -j;
+					myY[currObj] = i;
+					currObj++;
+				}
+				else if (i == 4.0f && j == 2.0f)
+				{
+					myX[currObj] = j;
+					myY[currObj] = i;
+					currObj++;
+
+					myX[currObj] = -j;
+					myY[currObj] = i;
+					currObj++;
+				}
+				else if (i == 5.0f && j == 3.0f)
+				{
+					myX[currObj] = j;
+					myY[currObj] = i;
+					currObj++;
+
+					myX[currObj] = -j;
+					myY[currObj] = i;
+					currObj++;
+				}
+			}
+		}
+	}
+
+	//Set the translate matrix
+	float offset = -5.0f; //Make the objects start at the left of the screen
+	for (uint i = 0; i < numObj; i++)
+	{
+		translateList[i] = glm::translate(IDENTITY_M4, vector3(myX[i] + offset + valueX, myY[i], 0.0f));
+		matrix4 m4Model = m4Scale * translateList[i];
 		myList[i]->Render(m4Projection, m4View, m4Model);
 	}
-	//value += 0.01f;
-
-	//matrix4 m4Model = m4Scale * m4Translate;
-	//matrix4 m4Model = m4Translate * m4Scale;
-
-	//m_pMesh->Render(m4Projection, m4View, m4Model);
+	valueX += 0.02f; //Make the objects move slowly from left to right
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
