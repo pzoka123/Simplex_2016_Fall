@@ -3,6 +3,7 @@ void Application::InitVariables(void)
 {
 	////Change this to your name and email
 	//m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Tung Nguyen - thn4185@rit.edu";
 
 	////Alberto needed this at this position for software recording.
 	//m_pWindow->setPosition(sf::Vector2i(710, 0));
@@ -11,7 +12,7 @@ void Application::InitVariables(void)
 	m_pCameraMngr->SetPositionTargetAndUp(vector3(5.0f,3.0f,15.0f), ZERO_V3, AXIS_Y);
 
 	m_pModel = new Simplex::Model();
-	m_pModel->Load("Sorted\\WallEye.bto");
+	m_pModel->Load("Portal\\Wheatley.bto");
 	
 	m_stopsList.push_back(vector3(-4.0f, -2.0f, 5.0f));
 	m_stopsList.push_back(vector3(1.0f, -2.0f, 5.0f));
@@ -56,29 +57,27 @@ void Application::Display(void)
 
 	//calculate the current position
 	vector3 v3CurrentPos;
-	float fMax = 2.0f;
-	static uint currStop = 0;
+	float fMax = 2.0f; //How many seconds does it take to get from one point to another
+	static uint currStop = 0; //Current stop index
 	float fPercent = MapValue(fTimer, 0.0f, fMax, 0.0f, 1.0f);
-
-
-	v3CurrentPos = glm::lerp(m_stopsList[0], m_stopsList[1], fPercent);
-
-
 
 	//your code goes here
 	//v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
 	//-------------------
 
-	
+	vector3 v3Start = m_stopsList[currStop]; 
+	vector3 v3End = m_stopsList[(currStop + 1) % m_stopsList.size()]; //Modulo to check for the end of the list
 
-
+	v3CurrentPos = glm::lerp(v3Start, v3End, fPercent);
 	
 	matrix4 m4Model = glm::translate(v3CurrentPos);
 	m_pModel->SetModelMatrix(m4Model);
 
-	if (fTimer > fMax)
+	if (fPercent >= 1.0f)
 	{
 		currStop++;
+		fTimer = m_pSystem->GetDeltaTime(uClock); //Restart the clock
+		currStop %= m_stopsList.size(); //Modulo to check for the end of the list
 	}
 
 	m_pMeshMngr->Print("\nTimer: ");//Add a line on top
