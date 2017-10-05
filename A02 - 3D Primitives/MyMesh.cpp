@@ -276,7 +276,29 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	vector3 midPoint(0, a_fHeight / 2, 0); //The point in the middle of the cone
+	vector3 topPoint(0, midPoint.y, 0); //Top of the cone
+	vector3 bottomPoint(0, -midPoint.y, 0); //Center of the base
+
+	std::vector<vector3> pointsList; //List of other points on the base
+
+	for (int i = 1; i < a_nSubdivisions + 1; i++)
+	{
+		float angle = 2.0f * 3.14f / a_nSubdivisions;
+
+		//Get the coordinates of the points
+		float a_x = a_fRadius * sin(angle * i);
+		float a_z = a_fRadius * cos(angle * i);
+
+		pointsList.push_back(vector3(a_x, -midPoint.y, a_z));
+	}
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		AddTri(pointsList[(i + 1) % a_nSubdivisions], pointsList[i], bottomPoint); //Add the base
+		AddTri(pointsList[i], pointsList[(i + 1) % a_nSubdivisions], topPoint); //Add the side triangles
+	}
+
 	// -------------------------------
 
 	// Adding information about color
@@ -300,7 +322,31 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	vector3 midPoint(0, a_fHeight / 2, 0); //The point in the middle of the cone
+	vector3 topPoint(0, midPoint.y, 0); //Center of the top surface
+	vector3 bottomPoint(0, -midPoint.y, 0); //Center of the bottom surface
+
+	std::vector<vector3> topPointsList; //List of other points on the top surface
+	std::vector<vector3> bottomPointsList; //List of other points on the bottom surface
+
+	for (int i = 1; i < a_nSubdivisions + 1; i++)
+	{
+		float angle = 2.0f * 3.14f / a_nSubdivisions;
+
+		//Get the coordinates of the points
+		float a_x = a_fRadius * sin(angle * i);
+		float a_z = a_fRadius * cos(angle * i);
+
+		topPointsList.push_back(vector3(a_x, midPoint.y, a_z));
+		bottomPointsList.push_back(vector3(a_x, -midPoint.y, a_z));
+	}
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		AddTri(topPointsList[i], topPointsList[(i + 1) % a_nSubdivisions], topPoint); //Add the top
+		AddTri(bottomPointsList[(i + 1) % a_nSubdivisions], bottomPointsList[i], bottomPoint); //Add the base
+		AddQuad(bottomPointsList[i], bottomPointsList[(i + 1) % a_nSubdivisions], topPointsList[i], topPointsList[(i + 1) % a_nSubdivisions]); //Add the side quads
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -330,7 +376,51 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	vector3 midPoint(0, a_fHeight / 2, 0); //The point in the middle of the cone
+
+	//Outer cone
+	vector3 outerTopPoint(0, midPoint.y, 0); //Center of the top surface
+	vector3 outerBottomPoint(0, -midPoint.y, 0); //Center of the bottom surface
+	std::vector<vector3> topOuterPointsList; //List of other points on the top surface
+	std::vector<vector3> bottomOuterPointsList; //List of other points on the bottom surface
+
+	for (int i = 1; i < a_nSubdivisions + 1; i++)
+	{
+		float angle = 2.0f * 3.14f / a_nSubdivisions;
+
+		//Get the coordinates of the points
+		float a_x = a_fOuterRadius * sin(angle * i);
+		float a_z = a_fOuterRadius * cos(angle * i);
+
+		topOuterPointsList.push_back(vector3(a_x, midPoint.y, a_z));
+		bottomOuterPointsList.push_back(vector3(a_x, -midPoint.y, a_z));
+	}
+
+	//Inner cone
+	vector3 innerTopPoint(0, midPoint.y, 0); //Center of the top surface
+	vector3 innerBottomPoint(0, -midPoint.y, 0); //Center of the bottom surface
+	std::vector<vector3> topInnerPointsList; //List of other points on the top surface
+	std::vector<vector3> bottomInnerPointsList; //List of other points on the bottom surface
+
+	for (int i = 1; i < a_nSubdivisions + 1; i++)
+	{
+		float angle = 2.0f * 3.14f / a_nSubdivisions;
+
+		//Get the coordinates of the points
+		float a_x = a_fInnerRadius * sin(angle * i);
+		float a_z = a_fInnerRadius * cos(angle * i);
+
+		bottomInnerPointsList.push_back(vector3(a_x, -midPoint.y, a_z));
+		topInnerPointsList.push_back(vector3(a_x, midPoint.y, a_z));
+	}
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		AddQuad(topOuterPointsList[i], topOuterPointsList[(i + 1) % a_nSubdivisions], topInnerPointsList[i], topInnerPointsList[(i + 1) % a_nSubdivisions]); //Add the top quads
+		AddQuad(bottomOuterPointsList[(i + 1) % a_nSubdivisions], bottomOuterPointsList[i], bottomInnerPointsList[(i + 1) % a_nSubdivisions], bottomInnerPointsList[i]); //Add the bottom quads
+		AddQuad(bottomOuterPointsList[i], bottomOuterPointsList[(i + 1) % a_nSubdivisions], topOuterPointsList[i], topOuterPointsList[(i + 1) % a_nSubdivisions]); //Add the outer quads
+		AddQuad(bottomInnerPointsList[(i + 1) % a_nSubdivisions], bottomInnerPointsList[i], topInnerPointsList[(i + 1) % a_nSubdivisions], topInnerPointsList[i]); //Add the inner quads
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -387,7 +477,120 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	vector3 midPoint(0, 0, 0); //The point in the middle of the sphere
+	vector3 topPoint(0, a_fRadius, 0); //Top point of the sphere
+	vector3 bottomPoint(0, -a_fRadius, 0); //Bottom point of the sphere
+
+	std::vector<vector3> topPointsList; //List of other points on the top surface
+	std::vector<vector3> bottomPointsList; //List of other points on the bottom surface
+
+	std::vector<std::vector<vector3>> midLists;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		float angle = 2.0f * 3.14f / a_nSubdivisions;
+
+		//Get the coordinates of the points
+		float a_x = a_fRadius * sin(angle * i);
+		float a_z = a_fRadius * cos(angle * i);
+		topPointsList.push_back(vector3(a_x, a_fRadius / 1.5f, a_z));
+		bottomPointsList.push_back(vector3(a_x, -a_fRadius / 1.5f, a_z));
+	}
+
+	if (a_nSubdivisions == 4)
+	{
+		std::vector<vector3> midPointsList;
+		midLists.push_back(midPointsList);
+		for (int i = 0; i < a_nSubdivisions; i++)
+		{
+			float angle = 2.0f * 3.14f / a_nSubdivisions;
+
+			//Get the coordinates of the points
+			float a_x = a_fRadius * sin(angle * i);
+			float a_z = a_fRadius * cos(angle * i);
+			midLists[0].push_back(vector3(a_x, 0, a_z));
+			topPointsList[i].x /= 1.5f;
+			topPointsList[i].z /= 1.5f;
+			bottomPointsList[i].x /= 1.5f;
+			bottomPointsList[i].z /= 1.5f;
+		}
+	}
+
+	if (a_nSubdivisions == 5)
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			std::vector<vector3> midPointsList;
+			midLists.push_back(midPointsList);
+		}
+		for (int i = 0; i < a_nSubdivisions; i++)
+		{
+			float angle = 2.0f * 3.14f / a_nSubdivisions;
+
+			//Get the coordinates of the points
+			float a_x = a_fRadius * sin(angle * i);
+			float a_z = a_fRadius * cos(angle * i);
+			midLists[0].push_back(vector3(a_x, a_fRadius / 3.5f, a_z));
+			midLists[1].push_back(vector3(a_x, -a_fRadius / 3.5f, a_z));
+			topPointsList[i].x /= 1.5f;
+			topPointsList[i].z /= 1.5f;
+			bottomPointsList[i].x /= 1.5f;
+			bottomPointsList[i].z /= 1.5f;
+		}
+	}
+
+	if (a_nSubdivisions == 6)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			std::vector<vector3> midPointsList;
+			midLists.push_back(midPointsList);
+		}
+		for (int i = 0; i < a_nSubdivisions; i++)
+		{
+			float angle = 2.0f * 3.14f / a_nSubdivisions;
+
+			//Get the coordinates of the points
+			float a_x = a_fRadius * sin(angle * i);
+			float a_z = a_fRadius * cos(angle * i);
+			midLists[0].push_back(vector3(a_x / 1.25f, a_fRadius / 3.0f, a_z / 1.25f));
+			midLists[1].push_back(vector3(a_x, 0, a_z));
+			midLists[2].push_back(vector3(a_x / 1.25f, -a_fRadius / 3.0f, a_z / 1.25f));
+			topPointsList[i].x /= 1.75f;
+			topPointsList[i].z /= 1.75f;
+			bottomPointsList[i].x /= 1.75f;
+			bottomPointsList[i].z /= 1.75f;
+		}
+	}
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		AddTri(topPointsList[i], topPointsList[(i + 1) % a_nSubdivisions], topPoint);
+		AddTri(bottomPointsList[(i + 1) % a_nSubdivisions], bottomPointsList[i], bottomPoint);
+		if (a_nSubdivisions < 3)
+		{
+			AddQuad(bottomPointsList[i], bottomPointsList[(i + 1) % a_nSubdivisions], topPointsList[i], topPointsList[(i + 1) % a_nSubdivisions]);
+		}
+		else if (a_nSubdivisions == 4)
+		{
+			AddQuad(bottomPointsList[i], bottomPointsList[(i + 1) % a_nSubdivisions], midLists[0][i], midLists[0][(i + 1) % a_nSubdivisions]);
+			AddQuad(midLists[0][i], midLists[0][(i + 1) % a_nSubdivisions], topPointsList[i], topPointsList[(i + 1) % a_nSubdivisions]);
+		}
+		else if (a_nSubdivisions == 5)
+		{
+			AddQuad(bottomPointsList[i], bottomPointsList[(i + 1) % a_nSubdivisions], midLists[1][i], midLists[1][(i + 1) % a_nSubdivisions]);
+			AddQuad(midLists[1][i], midLists[1][(i + 1) % a_nSubdivisions], midLists[0][i], midLists[0][(i + 1) % a_nSubdivisions]);
+			AddQuad(midLists[0][i], midLists[0][(i + 1) % a_nSubdivisions], topPointsList[i], topPointsList[(i + 1) % a_nSubdivisions]);
+		}
+		else if (a_nSubdivisions == 6)
+		{
+			AddQuad(bottomPointsList[i], bottomPointsList[(i + 1) % a_nSubdivisions], midLists[2][i], midLists[2][(i + 1) % a_nSubdivisions]);
+			AddQuad(midLists[2][i], midLists[2][(i + 1) % a_nSubdivisions], midLists[1][i], midLists[1][(i + 1) % a_nSubdivisions]);
+			AddQuad(midLists[1][i], midLists[1][(i + 1) % a_nSubdivisions], midLists[0][i], midLists[0][(i + 1) % a_nSubdivisions]);
+			AddQuad(midLists[0][i], midLists[0][(i + 1) % a_nSubdivisions], topPointsList[i], topPointsList[(i + 1) % a_nSubdivisions]);
+		}
+	}
+
 	// -------------------------------
 
 	// Adding information about color
