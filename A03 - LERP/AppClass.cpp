@@ -39,6 +39,19 @@ void Application::InitVariables(void)
 	{
 		vector3 v3Color = WaveLengthToRGB(uColor); //calculate color based on wavelength
 		m_shapeList.push_back(m_pMeshMngr->GenerateTorus(fSize, fSize - 0.1f, 3, i, v3Color)); //generate a custom torus and add it to the meshmanager
+
+		std::vector<vector3> stopList;
+		for (uint j = 0; j < i; j++)
+		{
+			float angle = 2.0f * 3.14f * j / i;
+
+			float stopX = fSize * cos(angle);
+			float stopY = fSize * sin(angle);
+
+			stopList.push_back(vector3(stopX, stopY, 0));
+		}
+		list.push_back(stopList);
+
 		fSize += 0.5f; //increment the size for the next orbit
 		uColor -= static_cast<uint>(decrements); //decrease the wavelength
 	}
@@ -65,7 +78,8 @@ void Application::Display(void)
 	/*
 		The following offset will orient the orbits as in the demo, start without it to make your life easier.
 	*/
-	//m4Offset = glm::rotate(IDENTITY_M4, 90.0f, AXIS_Z);
+	m4Offset = glm::rotate(IDENTITY_M4, 90.0f, AXIS_Z);
+
 
 	// draw a shapes
 	for (uint i = 0; i < m_uOrbits; ++i)
@@ -73,7 +87,32 @@ void Application::Display(void)
 		m_pMeshMngr->AddMeshToRenderList(m_shapeList[i], glm::rotate(m4Offset, 90.0f, AXIS_X));
 
 		//calculate the current position
-		vector3 v3CurrentPos = ZERO_V3;
+		vector3 v3CurrentPos;
+
+		//Get a timer
+		static float fTimer = 0;	//store the new timer
+		static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
+		fTimer += m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
+
+		float fMax = 0.5f; //How many seconds does it take to get from one point to another
+
+		static uint currStop = 0; //Current stop index
+		currList.push_back(currStop);
+
+		float fPercent = MapValue(fTimer, 0.0f, fMax, 0.0f, 1.0f);
+
+		vector3 v3Start = list[i][currList[i]];
+		vector3 v3End = list[i][(currList[i] + 1) % list[i].size()]; //Modulo to check for the end of the list
+
+		v3CurrentPos = glm::lerp(v3Start, v3End, fPercent);
+
+		if (fPercent >= 1.0f)
+		{
+			currList[i]++;
+			fTimer = m_pSystem->GetDeltaTime(uClock); //Restart the clock
+			currList[i] %= list[i].size(); //Modulo to check for the end of the list
+		}
+
 		matrix4 m4Model = glm::translate(m4Offset, v3CurrentPos);
 
 		//draw spheres
