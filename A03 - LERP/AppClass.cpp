@@ -40,17 +40,17 @@ void Application::InitVariables(void)
 		vector3 v3Color = WaveLengthToRGB(uColor); //calculate color based on wavelength
 		m_shapeList.push_back(m_pMeshMngr->GenerateTorus(fSize, fSize - 0.1f, 3, i, v3Color)); //generate a custom torus and add it to the meshmanager
 
-		std::vector<vector3> stopList;
+		std::vector<vector3> stopList; //Contains the stops for each orbit
 		for (uint j = 0; j < i; j++)
 		{
-			float angle = 2.0f * 3.14f * j / i;
+			float angle = 2.0f * 3.14f * j / i; //Calculate the angle for each stop in the orbit based on the number of sides
 
 			float stopX = fSize * cos(angle);
 			float stopY = fSize * sin(angle);
 
 			stopList.push_back(vector3(stopX, stopY, 0));
 		}
-		list.push_back(stopList);
+		orbitList.push_back(stopList);
 
 		fSize += 0.5f; //increment the size for the next orbit
 		uColor -= static_cast<uint>(decrements); //decrease the wavelength
@@ -97,20 +97,25 @@ void Application::Display(void)
 		float fMax = 0.5f; //How many seconds does it take to get from one point to another
 
 		static uint currStop = 0; //Current stop index
-		currList.push_back(currStop);
+		currList.push_back(currStop); //Get a current stop index for each orbit
 
 		float fPercent = MapValue(fTimer, 0.0f, fMax, 0.0f, 1.0f);
 
-		vector3 v3Start = list[i][currList[i]];
-		vector3 v3End = list[i][(currList[i] + 1) % list[i].size()]; //Modulo to check for the end of the list
+		vector3 v3Start = orbitList[i][currList[i]];
+		vector3 v3End = orbitList[i][(currList[i] + 1) % orbitList[i].size()]; //Modulo to check for the end of the list
 
 		v3CurrentPos = glm::lerp(v3Start, v3End, fPercent);
 
 		if (fPercent >= 1.0f)
 		{
-			currList[i]++;
 			fTimer = m_pSystem->GetDeltaTime(uClock); //Restart the clock
-			currList[i] %= list[i].size(); //Modulo to check for the end of the list
+
+			//Check and increment the current index for each orbit
+			for (uint j = 0; j < m_uOrbits; j++)
+			{
+				currList[i + j]++;
+				currList[i + j] %= orbitList[i + j].size(); //Modulo to check for the end of the list
+			}
 		}
 
 		matrix4 m4Model = glm::translate(m4Offset, v3CurrentPos);

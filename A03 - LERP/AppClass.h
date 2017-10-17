@@ -22,8 +22,8 @@ class Application
 	std::vector<uint> m_shapeList; //shape index for circles
 	String m_sProgrammer = "Tung Nguyen - thn4185@rit.edu";
 
-	std::vector<std::vector<vector3>> list;
-	std::vector<uint> currList;
+	std::vector<std::vector<vector3>> orbitList; //Contains the stop lists of each orbit
+	std::vector<uint> currList; //Contains the current stop indices of each orbit
 	
 private:
 	static ImGuiObject gui; //GUI object
