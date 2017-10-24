@@ -45,8 +45,12 @@ void Application::Display(void)
 	matrix4 m4RotationX = glm::rotate(IDENTITY_M4, m_v3Rotation.x, vector3(1.0f, 0.0f, 0.0f));
 	matrix4 m4RotationY = glm::rotate(IDENTITY_M4, m_v3Rotation.y, vector3(0.0f, 1.0f, 0.0f));
 	matrix4 m4RotationZ = glm::rotate(IDENTITY_M4, m_v3Rotation.z, vector3(0.0f, 0.0f, 1.0f));
-	quaternion q1 = glm::angleAxis(45.0f, vector3(1.0f, 0.0f, 0.0f));
-	matrix4 m4Model = m4RotationX * m4RotationZ * m4RotationY;
+
+	matrix4 m4Rotation = m4RotationX * m4RotationY * m4RotationZ;
+
+	quaternion q1 = glm::angleAxis(1.0f, vector3(1.0f, 0.0f, 0.0f));
+
+	matrix4 m4Model = glm::toMat4(m_qRotation);
 
 	/*
 	for (uint i = 0; i < 2500; ++i)

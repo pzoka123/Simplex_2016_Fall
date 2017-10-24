@@ -133,6 +133,7 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 
 	case sf::Keyboard::R:
 		m_v3Rotation = vector3(0.0f, 0.0f, 0.0f);
+		m_qRotation = quaternion();
 		break;
 	}
 
@@ -428,6 +429,8 @@ void Application::ProcessKeyboard(void)
 		else
 		{
 			m_v3Rotation.x += 1.0f;
+			quaternion q1 = glm::angleAxis(1.0f, vector3(1.0f, 0.0f, 0.0f));
+			m_qRotation = m_qRotation * q1;
 		}
 	}
 
@@ -440,6 +443,8 @@ void Application::ProcessKeyboard(void)
 		else
 		{
 			m_v3Rotation.y += 1.0f;
+			quaternion q1 = glm::angleAxis(1.0f, vector3(0.0f, 1.0f, 0.0f));
+			m_qRotation = m_qRotation * q1;
 		}
 	}
 
@@ -452,6 +457,8 @@ void Application::ProcessKeyboard(void)
 		else
 		{
 			m_v3Rotation.z += 1.0f;
+			quaternion q1 = glm::angleAxis(1.0f, vector3(0.0f, 0.0f, 1.0f));
+			m_qRotation = m_qRotation * q1;
 		}
 	}
 }
