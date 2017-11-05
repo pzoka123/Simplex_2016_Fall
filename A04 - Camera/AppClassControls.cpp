@@ -369,6 +369,16 @@ void Application::CameraRotation(float a_fSpeed)
 		fAngleX += fDeltaMouse * a_fSpeed;
 	}
 	//Change the Yaw and the Pitch of the camera
+
+	//Create Forward, Upward, and Rightward vectors based on position, target, and up vectors
+	vector3 v3Forward = m_pCamera->GetTarget() - m_pCamera->GetPosition();
+	vector3 v3Upward = m_pCamera->GetUp();
+	vector3 v3Rightward = glm::normalize(glm::cross(v3Upward, v3Forward));
+
+	//Change angle of camera
+	m_qFPC = glm::angleAxis(fAngleX * 3.0f, v3Rightward) * m_qFPC;
+	m_qFPC = glm::angleAxis(fAngleY * 3.0f, v3Upward) * m_qFPC;
+
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
 }
 //Keyboard
@@ -386,6 +396,48 @@ void Application::ProcessKeyboard(void)
 	if (fMultiplier)
 		fSpeed *= 5.0f;
 #pragma endregion
+
+	//Create Position, Forward, and Upward vectors
+	vector3 v3Pos = m_pCamera->GetPosition();
+	vector3 v3Forward = m_pCamera->GetTarget() - v3Pos;
+	vector3 v3Upward = m_pCamera->GetUp();
+
+	//Get the new x, y, z values for the Forward vector based on quaternion to rotaion matrix
+	float xForward = 2.0f * (m_qFPC.x * m_qFPC.z + m_qFPC.w * m_qFPC.y);
+	float yForward = 2.0f * (m_qFPC.y * m_qFPC.z - m_qFPC.w * m_qFPC.x);
+	float zForward = 1.0f - 2.0f * (m_qFPC.x * m_qFPC.x + m_qFPC.y * m_qFPC.y);
+
+	v3Forward = vector3(xForward, yForward, zForward); //Change the Forward vector
+
+	//Create the Rightward vector
+	vector3 v3Rightward = glm::normalize(glm::cross(v3Upward, v3Forward));
+
+	//Keyboard controls
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+	{
+		v3Pos += v3Forward * fSpeed;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+	{
+		v3Pos -= v3Forward * fSpeed;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+	{
+		v3Pos += v3Rightward * fSpeed;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+	{
+		v3Pos -= v3Rightward * fSpeed;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+	{
+		v3Pos -= v3Upward * fSpeed;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+	{
+		v3Pos += v3Upward * fSpeed;
+	}
+	m_pCamera->SetPositionTargetAndUp(v3Pos, v3Pos + v3Forward, v3Upward);
 }
 //Joystick
 void Application::ProcessJoystick(void)

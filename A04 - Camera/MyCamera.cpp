@@ -24,6 +24,14 @@ matrix4 Simplex::MyCamera::GetProjectionMatrix(void) { return m_m4Projection; }
 
 matrix4 Simplex::MyCamera::GetViewMatrix(void) { CalculateViewMatrix(); return m_m4View; }
 
+//Accessors to get position, target, and up vectors
+vector3 Simplex::MyCamera::GetPosition(void) { return m_v3Position; };
+
+vector3 Simplex::MyCamera::GetTarget(void) { return m_v3Target; };
+
+vector3 Simplex::MyCamera::GetUp(void) { return glm::normalize(m_v3Up); };
+
+
 Simplex::MyCamera::MyCamera()
 {
 	Init(); //Init the object with default values
@@ -129,7 +137,7 @@ void Simplex::MyCamera::SetPositionTargetAndUp(vector3 a_v3Position, vector3 a_v
 {
 	m_v3Position = a_v3Position;
 	m_v3Target = a_v3Target;
-	m_v3Up = a_v3Position + a_v3Upward;
+	m_v3Up = a_v3Upward;
 	CalculateProjectionMatrix();
 }
 
