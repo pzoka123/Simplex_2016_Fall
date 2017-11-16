@@ -286,6 +286,193 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	Simplex that might help you [eSATResults] feel free to use it.
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
+	float f_distance; //Distance between the center of the models
+	float f_radTotal; //The sum of the radii of the models
+
+	m_m4ToWorld = this->GetModelMatrix(); //Local to global matrix
+
+	//Local to global axes
+	vector3 v3_myLocalAxes[3];
+	v3_myLocalAxes[0] = vector3(m_m4ToWorld * vector4(AXIS_X, 0.0f));
+	v3_myLocalAxes[1] = vector3(m_m4ToWorld * vector4(AXIS_Y, 0.0f));
+	v3_myLocalAxes[2] = vector3(m_m4ToWorld * vector4(AXIS_Z, 0.0f));
+
+	vector3 v3_otherLocalAxes[3];
+	v3_otherLocalAxes[0] = vector3(a_pOther->GetModelMatrix() * vector4(AXIS_X, 0.0f));
+	v3_otherLocalAxes[1] = vector3(a_pOther->GetModelMatrix() * vector4(AXIS_Y, 0.0f));
+	v3_otherLocalAxes[2] = vector3(a_pOther->GetModelMatrix() * vector4(AXIS_Z, 0.0f));
+
+	m_v3HalfWidth = this->GetHalfWidth();
+	vector3 v3_otherHalfWidth = a_pOther->GetHalfWidth();
+
+	float f_thisRadius;
+	float f_otherRadius;
+
+	//Rotational matrices and common subexpressions
+	matrix3 m3_rotation;
+	matrix3 m3_absRotation;
+
+	for (uint i = 0; i < 3; i++)
+	{
+		for (uint j = 0; j < 3; j++)
+		{
+			m3_rotation[i][j] = glm::dot(v3_myLocalAxes[i], v3_otherLocalAxes[j]);
+			m3_absRotation[i][j] = glm::abs(m3_rotation[i][j]) + FLT_EPSILON;
+		}
+	}
+
+	//Translate vector
+	vector3 v3_translate = a_pOther->GetCenterGlobal() - this->GetCenterGlobal();
+	v3_translate = vector3(glm::dot(v3_translate, v3_myLocalAxes[0]), glm::dot(v3_translate, v3_myLocalAxes[1]), glm::dot(v3_translate, v3_myLocalAxes[2]));
+
+	//Test for local axes of this object (AX, AY, AZ)
+	for (uint i = 0; i < 3; i++)
+	{
+		f_thisRadius = m_v3HalfWidth[i];
+		f_otherRadius = v3_otherHalfWidth[0] * m3_absRotation[i][0] + v3_otherHalfWidth[1] * m3_absRotation[i][1] + v3_otherHalfWidth[2] * m3_absRotation[i][2];
+
+		f_distance = glm::abs(v3_translate[i]);
+		f_radTotal = f_thisRadius + f_otherRadius;
+		if (f_distance > f_radTotal)
+		{
+			if (i == 0)
+			{
+				return eSATResults::SAT_AX;
+			}
+			else if (i == 1)
+			{
+				return eSATResults::SAT_AY;
+			}
+			else if (i == 2)
+			{
+				return eSATResults::SAT_AZ;
+			}
+		}
+	}
+
+	//Test for local axes of the other object (BX, BY, BZ)
+	for (uint i = 0; i < 3; i++)
+	{
+		f_thisRadius = m_v3HalfWidth[0] * m3_absRotation[0][i] + m_v3HalfWidth[1] * m3_absRotation[1][i] + m_v3HalfWidth[2] * m3_absRotation[2][i];
+		f_otherRadius = v3_otherHalfWidth[i];
+
+		f_distance = glm::abs(v3_translate[0] * m3_rotation[0][i] + v3_translate[1] * m3_rotation[1][i] + v3_translate[2] * m3_rotation[2][i]);
+		f_radTotal = f_thisRadius + f_otherRadius;
+		if (f_distance > f_radTotal)
+		{
+			if (i == 0)
+			{
+				return eSATResults::SAT_BX;
+			}
+			else if (i == 1)
+			{
+				return eSATResults::SAT_BY;
+			}
+			else if (i == 2)
+			{
+				return eSATResults::SAT_BZ;
+			}
+		}
+	}
+
+	//Test axis AX x BX
+	f_thisRadius = m_v3HalfWidth[1] * m3_absRotation[2][0] + m_v3HalfWidth[2] * m3_absRotation[1][0];
+	f_otherRadius = v3_otherHalfWidth[1] * m3_absRotation[0][2] + v3_otherHalfWidth[2] * m3_absRotation[0][1];
+
+	f_distance = glm::abs(v3_translate[2] * m3_rotation[1][0] - v3_translate[1] * m3_rotation[2][0]);
+	f_radTotal = f_thisRadius + f_otherRadius;
+	if (f_distance > f_radTotal)
+	{
+		return eSATResults::SAT_AXxBX;
+	}
+
+	//Test axis AX x BY
+	f_thisRadius = m_v3HalfWidth[1] * m3_absRotation[2][1] + m_v3HalfWidth[2] * m3_absRotation[1][1];
+	f_otherRadius = v3_otherHalfWidth[0] * m3_absRotation[0][2] + v3_otherHalfWidth[2] * m3_absRotation[0][0];
+
+	f_distance = glm::abs(v3_translate[2] * m3_rotation[1][1] - v3_translate[1] * m3_rotation[2][1]);
+	f_radTotal = f_thisRadius + f_otherRadius;
+	if (f_distance > f_radTotal)
+	{
+		return eSATResults::SAT_AXxBY;
+	}
+
+	//Test axis AX x BZ
+	f_thisRadius = m_v3HalfWidth[1] * m3_absRotation[2][2] + m_v3HalfWidth[2] * m3_absRotation[1][2];
+	f_otherRadius = v3_otherHalfWidth[0] * m3_absRotation[0][1] + v3_otherHalfWidth[1] * m3_absRotation[0][0];
+
+	f_distance = glm::abs(v3_translate[2] * m3_rotation[1][2] - v3_translate[1] * m3_rotation[2][2]);
+	f_radTotal = f_thisRadius + f_otherRadius;
+	if (f_distance > f_radTotal)
+	{
+		return eSATResults::SAT_AXxBZ;
+	}
+
+	//Test axis AY x BX
+	f_thisRadius = m_v3HalfWidth[0] * m3_absRotation[2][0] + m_v3HalfWidth[2] * m3_absRotation[0][0];
+	f_otherRadius = v3_otherHalfWidth[1] * m3_absRotation[1][2] + v3_otherHalfWidth[2] * m3_absRotation[1][1];
+
+	f_distance = glm::abs(v3_translate[0] * m3_rotation[2][0] - v3_translate[2] * m3_rotation[0][0]);
+	f_radTotal = f_thisRadius + f_otherRadius;
+	if (f_distance > f_radTotal)
+	{
+		return eSATResults::SAT_AYxBX;
+	}
+
+	//Test axis AY x BY
+	f_thisRadius = m_v3HalfWidth[0] * m3_absRotation[2][1] + m_v3HalfWidth[2] * m3_absRotation[0][1];
+	f_otherRadius = v3_otherHalfWidth[0] * m3_absRotation[1][2] + v3_otherHalfWidth[2] * m3_absRotation[1][0];
+
+	f_distance = glm::abs(v3_translate[0] * m3_rotation[2][1] - v3_translate[2] * m3_rotation[0][1]);
+	f_radTotal = f_thisRadius + f_otherRadius;
+	if (f_distance > f_radTotal)
+	{
+		return eSATResults::SAT_AYxBY;
+	}
+
+	//Test axis AY x BZ
+	f_thisRadius = m_v3HalfWidth[0] * m3_absRotation[2][2] + m_v3HalfWidth[2] * m3_absRotation[0][2];
+	f_otherRadius = v3_otherHalfWidth[0] * m3_absRotation[1][1] + v3_otherHalfWidth[1] * m3_absRotation[1][0];
+
+	f_distance = glm::abs(v3_translate[0] * m3_rotation[2][2] - v3_translate[2] * m3_rotation[0][2]);
+	f_radTotal = f_thisRadius + f_otherRadius;
+	if (f_distance > f_radTotal)
+	{
+		return eSATResults::SAT_AYxBZ;
+	}
+
+	//Test axis AZ x BX
+	f_thisRadius = m_v3HalfWidth[0] * m3_absRotation[1][0] + m_v3HalfWidth[1] * m3_absRotation[0][0];
+	f_otherRadius = v3_otherHalfWidth[1] * m3_absRotation[2][2] + v3_otherHalfWidth[2] * m3_absRotation[2][1];
+
+	f_distance = glm::abs(v3_translate[1] * m3_rotation[0][0] - v3_translate[0] * m3_rotation[1][0]);
+	f_radTotal = f_thisRadius + f_otherRadius;
+	if (f_distance > f_radTotal)
+	{
+		return eSATResults::SAT_AZxBX;
+	}
+
+	//Test axis AZ x BY
+	f_thisRadius = m_v3HalfWidth[0] * m3_absRotation[1][1] + m_v3HalfWidth[1] * m3_absRotation[0][1];
+	f_otherRadius = v3_otherHalfWidth[0] * m3_absRotation[2][2] + v3_otherHalfWidth[2] * m3_absRotation[2][0];
+
+	f_distance = glm::abs(v3_translate[1] * m3_rotation[0][1] - v3_translate[0] * m3_rotation[1][1]);
+	f_radTotal = f_thisRadius + f_otherRadius;
+	if (f_distance > f_radTotal)
+	{
+		return eSATResults::SAT_AZxBY;
+	}
+
+	//Test axis AZ x BZ
+	f_thisRadius = m_v3HalfWidth[0] * m3_absRotation[1][2] + m_v3HalfWidth[1] * m3_absRotation[0][2];
+	f_otherRadius = v3_otherHalfWidth[0] * m3_absRotation[2][1] + v3_otherHalfWidth[1] * m3_absRotation[2][0];
+
+	f_distance = glm::abs(v3_translate[1] * m3_rotation[0][2] - v3_translate[0] * m3_rotation[1][2]);
+	f_radTotal = f_thisRadius + f_otherRadius;
+	if (f_distance > f_radTotal)
+	{
+		return eSATResults::SAT_AZxBZ;
+	}
 
 	//there is no axis test that separates this two objects
 	return eSATResults::SAT_NONE;
